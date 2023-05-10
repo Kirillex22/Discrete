@@ -1,0 +1,69 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace ConsoleApplication17
+{
+    class Program
+    {
+        public static void FordFal(List<int[]> graph, int st, int des)
+        {
+            int sum_stream = 0;
+            int min = 9999;
+            int max = int.MinValue;
+            int len = 9000;
+            int len_m = 9000;
+            List<object> ways = new List<object>();
+            List<int[]>way = new List<int[]>();
+            int t_st = st;
+            int[] way_part = new int[3];
+
+            while(len_m != ways.Count()){ //строим ways
+                len_m = ways.Count();
+                while (len != way.Count()){ //строим way
+                    len = way.Count();
+                    foreach (int[] i in graph){
+                        if (i[0] == t_st){
+                            if (i[2] > max) { 
+                                max = i[2];
+                                way_part = i;
+                            }
+                        }
+                    }
+                    way.Add(way_part);
+                    if (way_part[1] == des)
+                        break;
+                    t_st = way_part[1];
+                    max = int.MaxValue;
+                    min = int.MaxValue;
+                }
+                if (way[way.Count - 1][2] == des){
+                    foreach (int[] i in way){
+                        if (i[2] < min)
+                            min = i[2];
+                    }
+                    sum_stream += min;
+                    foreach (int[] i in way){
+                        i[2] -= min;
+                        if (i[2] == 0)
+                            graph.Remove(i);
+                        int[] reverse = { i[1], i[0], min };
+                        graph.Add(reverse);
+                    }
+                    ways.Add(way);
+                }
+                else{
+                    continue;
+                }              
+            }
+            Console.WriteLine(sum_stream);
+        }
+        static void Main(string[] args)
+        {
+            
+        }
+    }
+}

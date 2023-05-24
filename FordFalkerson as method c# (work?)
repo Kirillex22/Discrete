@@ -1,6 +1,8 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,61 +11,83 @@ namespace ConsoleApplication17
 {
     class Program
     {
-        public static void FordFal(List<int[]> graph, int st, int des)
+        private static List<int[]> BFS(List<int[]> ribs, int n, int start, int end)
         {
-            int sum_stream = 0;
-            int min = 9999;
-            int max = int.MinValue;
-            int len = 9000;
-            int len_m = 9000;
-            List<object> ways = new List<object>();
-            List<int[]>way = new List<int[]>();
-            int t_st = st;
-            int[] way_part = new int[3];
+            List<int[]> way = new List<int[]>();
+            Queue<int> queue = new Queue<int>();
+            int[,] graph = new int[n, n];
+            int[,] weights = new int[n, n];
+            foreach (int[] i in ribs)
+            {
+                graph[i[0], i[1]] = 1;
+                weights[i[0], i[1]] = i[2];
+            }    
+            bool[] visited = new bool[graph.GetLength(0)];
+            int[] parent = new int[graph.GetLength(0)];
 
-            while(len_m != ways.Count()){ //строим ways
-                len_m = ways.Count();
-                while (len != way.Count()){ //строим way
-                    len = way.Count();
-                    foreach (int[] i in graph){
-                        if (i[0] == t_st){
-                            if (i[2] > max) { 
-                                max = i[2];
-                                way_part = i;
-                            }
-                        }
+            visited[start] = true;
+            queue.Enqueue(start);
+            parent[start] = -1;
+
+            while (queue.Count != 0)
+            {
+                int current = queue.Dequeue();
+
+                for (int i = 0; i < graph.GetLength(0); i++)
+                {
+                    if (!visited[i] && graph[current, i] > 0)
+                    {
+                        visited[i] = true;
+                        parent[i] = current;
+                        queue.Enqueue(i);
                     }
-                    way.Add(way_part);
-                    if (way_part[1] == des)
-                        break;
-                    t_st = way_part[1];
-                    max = int.MaxValue;
-                    min = int.MaxValue;
                 }
-                if (way[way.Count - 1][2] == des){
-                    foreach (int[] i in way){
-                        if (i[2] < min)
-                            min = i[2];
-                    }
-                    sum_stream += min;
-                    foreach (int[] i in way){
-                        i[2] -= min;
-                        if (i[2] == 0)
-                            graph.Remove(i);
-                        int[] reverse = { i[1], i[0], min };
-                        graph.Add(reverse);
-                    }
-                    ways.Add(way);
-                }
-                else{
-                    continue;
-                }              
             }
-            Console.WriteLine(sum_stream);
+
+            if (!visited[end])
+                return null;
+            
+            List<int> path = new List<int>();
+            int node = end;
+            while (node != -1)
+            {
+                path.Add(node);
+                node = parent[node];
+            }
+            path.Reverse();
+            for(int i = 0; i < path.Count; i++)
+            {
+                if (i != path.Count-1)
+                way.Add(new int[] { path[i], path[i + 1], weights[i, path[i + 1]] });
+            }
+
+            return way;
+        }
+        public static int FordFul(List<int[]> graph, int n, int start, int end)
+        {
+            List<int[]> add = new List<int[]>();
+            List<int[]> rem = new List<int[]>();
+            List<int[]> way;
+            int stream = 0;
+            int sumstream = 0;
+            int min = int.MaxValue;
+            way = BFS(graph, n, start, end);
+            return sumstream;     
         }
         static void Main(string[] args)
         {
-            
-        }
-    }
+            List<int[]> graph = new List<int[]>
+            {
+                new int[] {0,5,7}, new int[] {5,4,2}, new int[] {4,3,5}, new int[] {5,1,4}, new int[] {4,2,4},
+                new int[] {0,1,4}, new int[] {1,2,4}, new int[] {2,3,12}
+            };
+            int n = 6;
+            int start = 0;
+            int end = 3;
+
+            Console.WriteLine(FordFul(graph, n, start, end));
+
+
+}        
+}
 }

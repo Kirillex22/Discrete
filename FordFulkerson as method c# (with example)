@@ -20,12 +20,16 @@ namespace ConsoleApplication17{
             this.start = start;
             this.end = end;
         }
-        private static List<int[]> BFS(Problem problem){
+    }
+    class Program{
+        private static List<int[]> BFS(Problem problem)
+        {
             List<int[]> way = new List<int[]>();
             Queue<int> queue = new Queue<int>();
             int[,] graph = new int[problem.n, problem.n];
             int[,] weights = new int[problem.n, problem.n];
-            foreach (int[] i in problem.graph){
+            foreach (int[] i in problem.graph)
+            {
                 if (i[2] != 0)
                     graph[i[0], i[1]] = 1;
                 weights[i[0], i[1]] = i[2];
@@ -37,10 +41,12 @@ namespace ConsoleApplication17{
             queue.Enqueue(problem.start);
             parent[problem.start] = -1;
 
-            while (queue.Count != 0){
+            while (queue.Count != 0)
+            {
                 int current = queue.Dequeue();
                 for (int i = 0; i < graph.GetLength(0); i++)
-                    if (!visited[i] && graph[current, i] > 0){
+                    if (!visited[i] && graph[current, i] > 0)
+                    {
                         visited[i] = true;
                         parent[i] = current;
                         queue.Enqueue(i);
@@ -50,7 +56,8 @@ namespace ConsoleApplication17{
                 return null;
             List<int> path = new List<int>();
             int node = problem.end;
-            while (node != -1){
+            while (node != -1)
+            {
                 path.Add(node);
                 node = parent[node];
             }
@@ -72,11 +79,13 @@ namespace ConsoleApplication17{
             int min = int.MaxValue;
             way = BFS(problem);
 
-            while ((way != null) && (way.Count != 0)){
+            while ((way != null) && (way.Count != 0))
+            {
                 foreach (int[] i in way)
                     if (i[2] < min)
                         min = i[2];
-                foreach (int[] i in way){
+                foreach (int[] i in way)
+                {
                     graph[i[0], i[1]] -= min;
                     graph[i[1], i[0]] += min;
                 }
@@ -88,8 +97,6 @@ namespace ConsoleApplication17{
             }
             return sumstream;
         }
-    }
-    class Program{
         static void Main(string[] args){
             List<int[]> graph = new List<int[]>{
                 new int[] {0,1,7},new int[] {1,0,0},
@@ -106,7 +113,7 @@ namespace ConsoleApplication17{
             int start = 0;
             int end = 3;
             Problem problem = new Problem(graph, n, start, end);
-            Console.WriteLine(Problem.FordFul(problem));
+            Console.WriteLine(FordFul(problem));
         }        
     }
 }

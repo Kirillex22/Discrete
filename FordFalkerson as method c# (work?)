@@ -7,19 +7,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ConsoleApplication17
-{
-    class Program
-    {
-        private static List<int[]> BFS(List<int[]> ribs, int n, int start, int end)
-        {
+namespace ConsoleApplication17{
+    class Program{
+        private static List<int[]> BFS(List<int[]> ribs, int n, int start, int end){
             List<int[]> way = new List<int[]>();
             Queue<int> queue = new Queue<int>();
             int[,] graph = new int[n, n];
             int[,] weights = new int[n, n];
-            foreach (int[] i in ribs)
-            {
-                graph[i[0], i[1]] = 1;
+            foreach (int[] i in ribs){
+                if (i[2] != 0)
+                    graph[i[0], i[1]] = 1;
                 weights[i[0], i[1]] = i[2];
             }    
             bool[] visited = new bool[graph.GetLength(0)];
@@ -29,58 +26,67 @@ namespace ConsoleApplication17
             queue.Enqueue(start);
             parent[start] = -1;
 
-            while (queue.Count != 0)
-            {
+            while (queue.Count != 0){
                 int current = queue.Dequeue();
-
                 for (int i = 0; i < graph.GetLength(0); i++)
-                {
-                    if (!visited[i] && graph[current, i] > 0)
-                    {
+                    if (!visited[i] && graph[current, i] > 0){
                         visited[i] = true;
                         parent[i] = current;
                         queue.Enqueue(i);
                     }
-                }
             }
-
             if (!visited[end])
-                return null;
-            
+                return null; 
             List<int> path = new List<int>();
             int node = end;
-            while (node != -1)
-            {
+            while (node != -1){
                 path.Add(node);
                 node = parent[node];
             }
             path.Reverse();
             for(int i = 0; i < path.Count; i++)
-            {
                 if (i != path.Count-1)
-                way.Add(new int[] { path[i], path[i + 1], weights[i, path[i + 1]] });
-            }
-
+                    way.Add(new int[] { path[i], path[i + 1], weights[path[i], path[i + 1]] });
             return way;
         }
-        public static int FordFul(List<int[]> graph, int n, int start, int end)
-        {
-            List<int[]> add = new List<int[]>();
-            List<int[]> rem = new List<int[]>();
+        public static int FordFul(List<int[]> ribs, int n, int start, int end){
+
+            int[,] graph = new int[n, n];
+            foreach (int[] i in ribs)
+                graph[i[0], i[1]] = i[2];
             List<int[]> way;
-            int stream = 0;
             int sumstream = 0;
             int min = int.MaxValue;
-            way = BFS(graph, n, start, end);
+            way = BFS(ribs, n, start, end);
+            while ((way != null)&&(way.Count != 0)){
+                foreach (int[] i in way)
+                    if (i[2] < min)
+                        min = i[2];
+                foreach (int[] i in way){
+                    graph[i[0], i[1]] -= min;
+                    graph[i[1], i[0]] += min;
+                }               
+                foreach (int[] i in ribs)
+                    i[2] = graph[i[0], i[1]];
+                way = BFS(ribs, n, start, end);
+                sumstream += min;
+                min = int.MaxValue;
+            }
             return sumstream;     
         }
-        static void Main(string[] args)
-        {
-            List<int[]> graph = new List<int[]>
-            {
-                new int[] {0,5,7}, new int[] {5,4,2}, new int[] {4,3,5}, new int[] {5,1,4}, new int[] {4,2,4},
-                new int[] {0,1,4}, new int[] {1,2,4}, new int[] {2,3,12}
+        static void Main(string[] args){
+            List<int[]> graph = new List<int[]>{
+                new int[] {0,1,7},new int[] {1,0,0},
+                new int[] {1,2,2}, new int[] {2,1,0}, 
+                new int[] {2,3,5}, new int[] {3,2,0},
+                new int[] {4,3,12}, new int[] {3,4,0},
+                new int[] {5,4,4}, new int[] {4,5,0},
+                new int[] {0,5,4}, new int[] {5,0,0},
+                new int[] {1,5,4}, new int[] {5,1,0},
+                new int[] {5,2,8}, new int[] {2,5,0},
+                new int[] {2,4,4}, new int[] {4,2,0}
             };
+
             int n = 6;
             int start = 0;
             int end = 3;

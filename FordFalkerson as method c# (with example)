@@ -8,23 +8,34 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace ConsoleApplication17{
-    class Program{
-        private static List<int[]> BFS(List<int[]> ribs, int n, int start, int end){
+    class Problem{
+        public List<int[]> graph { get; set; }
+        public int n { get; }
+        public int start { get; }
+        public int end { get; }
+
+        public Problem(List<int[]> graph, int n, int start, int end){
+            this.graph = graph;
+            this.n = n;
+            this.start = start;
+            this.end = end;
+        }
+        private static List<int[]> BFS(Problem problem){
             List<int[]> way = new List<int[]>();
             Queue<int> queue = new Queue<int>();
-            int[,] graph = new int[n, n];
-            int[,] weights = new int[n, n];
-            foreach (int[] i in ribs){
+            int[,] graph = new int[problem.n, problem.n];
+            int[,] weights = new int[problem.n, problem.n];
+            foreach (int[] i in problem.graph){
                 if (i[2] != 0)
                     graph[i[0], i[1]] = 1;
                 weights[i[0], i[1]] = i[2];
-            }    
+            }
             bool[] visited = new bool[graph.GetLength(0)];
             int[] parent = new int[graph.GetLength(0)];
 
-            visited[start] = true;
-            queue.Enqueue(start);
-            parent[start] = -1;
+            visited[problem.start] = true;
+            queue.Enqueue(problem.start);
+            parent[problem.start] = -1;
 
             while (queue.Count != 0){
                 int current = queue.Dequeue();
@@ -35,45 +46,50 @@ namespace ConsoleApplication17{
                         queue.Enqueue(i);
                     }
             }
-            if (!visited[end])
-                return null; 
+            if (!visited[problem.end])
+                return null;
             List<int> path = new List<int>();
-            int node = end;
+            int node = problem.end;
             while (node != -1){
                 path.Add(node);
                 node = parent[node];
             }
             path.Reverse();
-            for(int i = 0; i < path.Count; i++)
-                if (i != path.Count-1)
+            for (int i = 0; i < path.Count; i++)
+                if (i != path.Count - 1)
                     way.Add(new int[] { path[i], path[i + 1], weights[path[i], path[i + 1]] });
             return way;
         }
-        public static int FordFul(List<int[]> ribs, int n, int start, int end){
+        public static int FordFul(Problem problem)
+        {
+            int[,] graph = new int[problem.n, problem.n];
 
-            int[,] graph = new int[n, n];
-            foreach (int[] i in ribs)
+            foreach (int[] i in problem.graph)
                 graph[i[0], i[1]] = i[2];
+
             List<int[]> way;
             int sumstream = 0;
             int min = int.MaxValue;
-            way = BFS(ribs, n, start, end);
-            while ((way != null)&&(way.Count != 0)){
+            way = BFS(problem);
+
+            while ((way != null) && (way.Count != 0)){
                 foreach (int[] i in way)
                     if (i[2] < min)
                         min = i[2];
                 foreach (int[] i in way){
                     graph[i[0], i[1]] -= min;
                     graph[i[1], i[0]] += min;
-                }               
-                foreach (int[] i in ribs)
+                }
+                foreach (int[] i in problem.graph)
                     i[2] = graph[i[0], i[1]];
-                way = BFS(ribs, n, start, end);
+                way = BFS(problem);
                 sumstream += min;
                 min = int.MaxValue;
             }
-            return sumstream;     
+            return sumstream;
         }
+    }
+    class Program{
         static void Main(string[] args){
             List<int[]> graph = new List<int[]>{
                 new int[] {0,1,7},new int[] {1,0,0},
@@ -86,14 +102,11 @@ namespace ConsoleApplication17{
                 new int[] {5,2,8}, new int[] {2,5,0},
                 new int[] {2,4,4}, new int[] {4,2,0}
             };
-
             int n = 6;
             int start = 0;
             int end = 3;
-
-            Console.WriteLine(FordFul(graph, n, start, end));
-
-
-}        
-}
+            Problem problem = new Problem(graph, n, start, end);
+            Console.WriteLine(Problem.FordFul(problem));
+        }        
+    }
 }
